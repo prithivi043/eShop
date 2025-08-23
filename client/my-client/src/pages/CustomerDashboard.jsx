@@ -147,83 +147,165 @@ const CustomerDashboard = () => {
     : [];
 
   return (
-    <div className="flex flex-col lg:flex-row max-w-screen-xl mx-auto px-6 py-10 min-h-screen font-sans bg-gradient-to-br from-[#fdfcff] via-[#f6fafe] to-[#eef4f8]">
+    <div className="flex flex-col lg:flex-row w-full max-w-screen-2xl mx-auto px-4 lg:px-8 py-10 min-h-screen font-sans bg-gradient-to-br from-[#ffffff] via-[#f9fafb] to-[#f1f5f9]">
+
       {/* Sidebar */}
-      <aside className="lg:w-1/4 w-full mb-8 lg:mb-0 lg:mr-8 p-6 bg-white/60 backdrop-blur-xl border border-indigo-100 shadow-lg rounded-2xl transition-all duration-300">
+      <aside className="lg:w-1/4 w-full mb-8 lg:mb-0 lg:mr-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white/30 backdrop-blur-xl border border-white/20 rounded-3xl shadow-xl p-6 space-y-6 sticky top-4"
+          className="bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col sticky top-4 h-[85vh]"
         >
-          <h2 className="text-xl font-semibold text-indigo-600 mb-5 flex items-center gap-2">
-            <MdTrackChanges className="text-2xl" />
-            Filter Categories
-          </h2>
-
-          {/* Search Bar */}
-          <div className="relative">
-            <FiSearch className="absolute top-3.5 left-3 text-slate-500" />
-            <input
-              type="text"
-              placeholder="Search product name"
-              className="w-full pl-10 pr-4 py-2.5 bg-white/60 backdrop-blur-md text-sm rounded-xl border border-slate-300 shadow-inner placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-indigo-500 to-purple-500 rounded-t-lg">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <MdTrackChanges className="text-xl" />
+              Filters
+            </h2>
+            <button
+              onClick={() => {
+                setSearch("");
+                setInStockOnly(false);
+                setRatingFilter(0);
+                setPriceRange([minPrice, maxPrice]);
+                setActiveCategory("");
+              }}
+              className="text-xs bg-white/20 text-white px-2 py-1 rounded-md hover:bg-white/30 cursor-pointer"
+            >
+              Reset
+            </button>
           </div>
 
-          {/* In-Stock Toggle */}
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-indigo-600 transition-all">
-            <MdOutlineInventory className="text-lg" />
-            <input
-              type="checkbox"
-              className="accent-indigo-600 scale-110"
-              checked={inStockOnly}
-              onChange={() => setInStockOnly(!inStockOnly)}
-            />
-            Show In-Stock Only
-          </label>
+          {/* Body */}
+          <div className="flex-1 overflow-y-auto p-5 space-y-7">
 
-          {/* Rating Filter */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <AiOutlineStar className="text-yellow-500 text-lg" />
-              <h4 className="text-sm font-semibold text-slate-700">Minimum Rating</h4>
+            {/* Search */}
+            <div>
+              <h4 className="text-sm font-semibold text-slate-700 mb-2">Search</h4>
+              <div className="relative">
+                <FiSearch className="absolute top-3 left-3 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
             </div>
-            {[4, 3, 2].map((star) => (
-              <label key={star} className="flex items-center mb-2 text-sm text-slate-600 hover:text-indigo-500 cursor-pointer">
+
+            {/* Categories */}
+            <div>
+              <h4 className="text-sm font-semibold text-slate-700 mb-3">Categories</h4>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => setActiveCategory("")}
+                  className={`text-left px-3 py-2 rounded-lg text-sm font-medium transition-all 
+              ${activeCategory === ""
+                      ? "bg-indigo-500 text-white shadow-md"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"}`}
+                >
+                  All
+                </button>
+                {categories.map((cat, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleCategoryChange(cat)}
+                    className={`text-left px-3 py-2 rounded-lg text-sm capitalize font-medium transition-all 
+                ${activeCategory === cat
+                        ? "bg-indigo-500 text-white shadow-md"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* In Stock */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={ratingFilter === star}
-                  onChange={() => setRatingFilter(ratingFilter === star ? 0 : star)}
-                  className="mr-2 accent-yellow-400 scale-110"
+                  className="accent-indigo-600 scale-110"
+                  checked={inStockOnly}
+                  onChange={() => setInStockOnly(!inStockOnly)}
                 />
-                {[...Array(star)].map((_, i) => (
-                  <AiOutlineStar key={i} className="text-yellow-400 text-base" />
-                ))}
-                <span className="ml-2 text-xs text-slate-500">& Up</span>
+                <MdOutlineInventory className="text-indigo-600" />
+                In Stock Only
               </label>
-            ))}
-          </div>
-
-          {/* Price Range */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <BiRupee className="text-green-500 text-lg" />
-              <h4 className="text-sm font-semibold text-slate-700">Price Range</h4>
             </div>
-            <input
-              type="range"
-              min={minPrice}
-              max={maxPrice}
-              value={priceRange[1]}
-              onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-              className="w-full accent-violet-500 transition-all duration-300"
-            />
-            <div className="flex justify-between text-xs text-slate-600 mt-1 font-medium">
-              <span>₹{priceRange[0]}</span>
-              <span>₹{priceRange[1]}</span>
+
+            {/* Rating */}
+            <div>
+              <h4 className="text-sm font-semibold text-slate-700 mb-3">
+                Customer Rating
+              </h4>
+              <div className="space-y-2">
+                {[4, 3, 2].map((star) => (
+                  <label
+                    key={star}
+                    className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer hover:text-indigo-600"
+                  >
+                    <input
+                      type="radio"
+                      name="rating"
+                      className="accent-yellow-400 cursor-pointer"
+                      checked={ratingFilter === star}
+                      onChange={() => setRatingFilter(ratingFilter === star ? 0 : star)}
+                    />
+                    <div className="flex">
+                      {[...Array(star)].map((_, i) => (
+                        <AiOutlineStar key={i} className="text-yellow-400 text-base" />
+                      ))}
+                    </div>
+                    & Up
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Price Range */}
+            <div>
+              <h4 className="text-sm font-semibold text-slate-700 mb-3">Price Range</h4>
+              <div className="flex items-center gap-2 mb-3">
+                <input
+                  type="number"
+                  value={priceRange[0]}
+                  min={minPrice}
+                  max={priceRange[1]}
+                  onChange={(e) =>
+                    setPriceRange([parseInt(e.target.value), priceRange[1]])
+                  }
+                  className="w-20 px-2 py-1 border rounded text-sm cursor-pointer"
+                />
+                <span>-</span>
+                <input
+                  type="number"
+                  value={priceRange[1]}
+                  min={priceRange[0]}
+                  max={maxPrice}
+                  onChange={(e) =>
+                    setPriceRange([priceRange[0], parseInt(e.target.value)])
+                  }
+                  className="w-20 px-2 py-1 border rounded text-sm"
+                />
+              </div>
+              <input
+                type="range"
+                min={minPrice}
+                max={maxPrice}
+                value={priceRange[1]}
+                onChange={(e) =>
+                  setPriceRange([priceRange[0], parseInt(e.target.value)])
+                }
+                className="w-full accent-indigo-600"
+              />
+              <div className="flex justify-between text-xs text-slate-600 mt-1 font-medium">
+                <span>₹{priceRange[0]}</span>
+                <span>₹{priceRange[1]}</span>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -232,68 +314,96 @@ const CustomerDashboard = () => {
 
 
 
+
       {/* Main Content */}
-      <main className="flex-1 bg-white/90 backdrop-blur-lg shadow-2xl border border-slate-200 rounded-2xl p-6 transition-all duration-300">
-        <div className="flex items-center justify-between rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.08)] px-6 py-5 mb-6 border border-gray-100">
+      <main className="flex-1 bg-white/90 backdrop-blur-lg shadow-lg border border-slate-200 rounded-lg p-6 transition-all duration-300">
+        {/* Centered Page Header */}
+        <div className="relative w-full mb-12">
+          <h1 className="text-5xl font-bold text-center text-gray-900">
+            Customer Dashboard
+          </h1>
+          <span className="block w-20 h-1 bg-indigo-500 mx-auto mt-3 rounded-full"></span>
+        </div>
+
+        <div className="flex items-center justify-between rounded-lg bg-white shadow-[0_8px_30px_rgb(0,0,0,0.08)] px-6 py-5 mb-6 border border-gray-100">
+          {/* Centered Page Header */}
           {/* Left: Avatar + Info */}
-          <div className="flex items-center space-x-5">
-            <div className="bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-[2.5px] rounded-full shadow-md">
+          <div className="flex items-center space-x-4">
+            {/* Avatar with subtle ring */}
+            <div className="relative">
               <img
                 src={avatarUrl}
                 alt="Profile"
-                className="w-12 h-12 object-cover rounded-full border-2 border-white"
+                className="w-12 h-12 object-cover rounded-full border-2 border-white shadow-md"
               />
+              <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
             </div>
+
+            {/* User Info */}
             <div className="flex flex-col">
-              <p className="text-lg font-semibold text-gray-800 tracking-tight">{user?.name || 'Customer'}</p>
-              <p className="text-sm text-gray-500">{user?.email || 'email@example.com'}</p>
+              <p className="text-base font-semibold text-gray-900 tracking-tight">
+                {user?.name || "Customer"}
+              </p>
+              <p className="text-sm text-gray-500">{user?.email || "email@example.com"}</p>
             </div>
           </div>
+
 
           {/* Right: Button */}
           <button
             onClick={() => navigate('/customer/profile')}
             className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full shadow hover:shadow-lg transition-all duration-200"
           >
-            <span className="text-base">⚙️</span> Profile Settings
+            <span className="text-base cursor-pointer">⚙️</span> Profile Settings
           </button>
         </div>
 
-
-
-        <div className="flex justify-between items-center mb-6 bg-gradient-to-r from-[#f5f7fb] to-[#eaf0f9] px-5 py-4 rounded-lg shadow-sm">
-          {/* Header Gradient Text */}
-          <h2 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm flex items-center gap-3">
-            <FaShoppingBag className="text-pink-500" /> Explore Products
+        {/* Explore Product */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 
+                bg-white px-6 py-5 rounded-lg border border-gray-200">
+          {/* Title (subtle brand accent) */}
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 flex items-center gap-3">
+            <FaShoppingBag className="text-indigo-600" />
+            Explore Products
           </h2>
 
-          {/* Buttons */}
-          <div className="flex gap-4 items-center">
-            {/* Favorites Button */}
+          {/* Actions */}
+          <div className="flex items-center gap-3">
+            {/* Favorites (secondary outline) */}
             <button
               onClick={() => setShowFavorites(!showFavorites)}
-              className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-br from-rose-500 via-pink-500 to-red-500 rounded-full shadow-md hover:shadow-lg hover:brightness-110 active:scale-95 transition duration-300 ease-in-out flex items-center gap-2"
+              aria-pressed={showFavorites}
+              className={`px-5 py-2.5 text-sm font-medium rounded-full border transition-colors duration-200
+        ${showFavorites
+                  ? 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+                } flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white`}
             >
               {showFavorites ? (
                 <>
-                  <FaArrowLeft className="text-white" /> Back to Products
+                  <FaArrowLeft /> Back to Products
                 </>
               ) : (
                 <>
-                  <FaHeart className="text-white" /> Favorites ({favoriteIds.length})
+                  <FaHeart className="text-rose-600 hover:cursor-pointer" /> Favorites ({favoriteIds.length})
                 </>
               )}
             </button>
 
-            {/* Cart Button */}
+            {/* Cart (primary solid) */}
             <button
               onClick={() => navigate('/customer/cart', { state: { cartItems } })}
-              className="px-4 py-2 text-sm font-medium bg-gradient-to-br from-sky-500 to-indigo-600 text-white rounded-full shadow-md hover:shadow-lg hover:scale-105 transition duration-300 ease-in-out flex items-center gap-2"
+              className="px-5 py-2.5 text-sm font-semibold text-white rounded-full
+                 bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500
+                 focus-visible:ring-offset-2 focus-visible:ring-offset-white flex items-center gap-2 cursor-pointer"
             >
               <FaShoppingCart /> Cart: {cartItems.length}
             </button>
           </div>
         </div>
+
 
 
 
@@ -312,7 +422,7 @@ const CustomerDashboard = () => {
               className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ease-in-out border-0
         ${activeCategory === ''
                   ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-white shadow-lg hover:scale-105'
-                  : 'bg-white text-slate-700 hover:bg-slate-100 shadow-sm'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 shadow-sm cursor-pointer'
                 }`}
             >
               All
@@ -326,7 +436,7 @@ const CustomerDashboard = () => {
                 className={`px-4 py-2 rounded-full text-sm font-semibold capitalize transition-all duration-300 ease-in-out border-0
           ${activeCategory === cat
                     ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-white shadow-lg hover:scale-105'
-                    : 'bg-white text-slate-700 hover:bg-slate-100 shadow-sm'
+                    : 'bg-white text-slate-700 hover:bg-slate-100 shadow-sm cursor-pointer'
                   }`}
               >
                 {cat}
@@ -345,7 +455,7 @@ const CustomerDashboard = () => {
               <img
                 src={selectedProduct.image}
                 alt={selectedProduct.name}
-                className="w-full md:w-1/2 h-72 object-cover rounded-3xl border-2 border-slate-200 shadow-lg"
+                className="w-full md:w-1/2 h-72 object-cover rounded-3xl border-2 border-slate-200 shadow-lg cursor-pointer"
               />
 
               {/* Product Details */}
@@ -376,7 +486,7 @@ const CustomerDashboard = () => {
                   <div className="flex gap-6 mt-6">
                     <button
                       onClick={() => addToCart(selectedProduct)}
-                      className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-2.5 rounded-full shadow-lg hover:scale-105 transition-all duration-300"
+                      className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-2.5 rounded-full shadow-lg hover:scale-105 transition-all duration-300 "
                     >
                       <FaCartPlus size={18} />
                       Add to Cart
@@ -397,7 +507,7 @@ const CustomerDashboard = () => {
                 <div>
                   <button
                     onClick={() => setSelectedProduct(null)}
-                    className="mt-4 text-indigo-600 hover:underline hover:text-indigo-800 text-sm font-medium"
+                    className="mt-4 text-indigo-600 hover:underline hover:text-indigo-800 text-sm font-medium cursor-pointer"
                   >
                     🔙 Back to Products
                   </button>
@@ -457,7 +567,7 @@ const CustomerDashboard = () => {
         >
 
           {viewableProducts.length === 0 ? (
-            <p className="col-span-full text-center text-slate-500">
+            <p className="col-span-full text-center text-slate-500 cursor-pointer">
               {showFavorites ? 'No favorites yet.' : 'No products found.'}
             </p>
           ) : (
